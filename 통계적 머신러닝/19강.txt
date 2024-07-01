@@ -1,0 +1,96 @@
+model.compile(loss='sparse_categorical_crossentropy', metrics='accuracy')
+history=model.fit(train_scaled, train_target, epochs=5, verbose=0)
+print(history.history.keys()) # dict_keys(['loss', 'accuracy'])를 출력함 (손실값과 정확도값이 들어있음)
+# history객체의 loss에는 각 epoch마다의 손실값이 저장되어 있음
+
+plt.plot(history.history['loss'])
+plt.xlabel('epoch')
+plt.ylabel('loss')
+plt.show()
+
+plt.plot(history.history['accuracy'])
+plt.xlabel('epoch')
+plt.ylabel('accuracy')
+plt.show()
+# epoch를 늘리면 loss가 줄며 점점 모델이 복잡해지고 훈련세트에 점점 잘 맞는 모델이 만들어진다.
+# 하지만 실전에 투입했을때 새로운 데이터인 test 데이터에 잘 일반화 되지 않는 단점이 있다.
+# 따라서 너무 훈련세트에 잘 맞는 모델을 만드는 것이 아니라 검증 세트나 테스트 세트에서
+# 적절한 일반화 성능을 얻을 수 있는(trade off) 훈련세트의 성능과 검증세트나 테스트세트의
+# 성능이 서로 잘 맞는 절충점을 찾아야 한다.
+
+history = model.fit(train_scaled, train_target, epochs=20, verbose=0, validation_data=(val_scaled, val_target))
+
+print(history, history.keys()) # dict_keys(['loss', 'accuracy', 'val_loss', 'val_accuracy'])를 출력함
+
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.xlabel('epoch')
+plt.ylabel('loss')
+plt.legend(['train', 'val'])
+plt.show()
+# train 데이터는 당연히 에포크가 증가할수록 손실값이 줄어듦 (그런식으로 훈련을 하기 때문)
+# 하지만 test는 값이 오르락내리락 함 (에포크가 증가할수록 train에 과대적합 되기 때문)
+
+# 이전에 과대적합을 해결할 수 있는 방안으로 L1, L2 규제 등이 있었다.
+# 하지만 신경망에서는 신경망에만 있는 규제방법을 많이 사용함 (드롭아웃)
+
+# 은닉층에 있는 뉴런 몇개를 임의로 계산하지 않는다 (마치 없는 것 처럼 훈련때 삭제)
+# 이런식으로 랜덤하게 여러번 몇개의 뉴런을 선택해서 계산하지 않는 과정을 반복
+# 뉴런 중에 몇퍼센트를 계산하지 않을지는 매개변수로 지정해줘야 함 (하이퍼파라미터)
+# 이렇게 뉴런 계산을 몇개 빼면 훈련세트에 잘 맞지 않게 된다 (과대적합 해소)
+# 또한 어떤 한 뉴런에 과도하게 예측을 의존하는 경향도 해소할 수 있다.
+
+# 이렇게 훈련 후에 테스트나 평가를 할 때는 모든 뉴런을 사용
+
+# 드롭아웃
+model = keras.Sequential()
+model.add(keras.layers.Flatten(input_shape=(28,28)))
+model.add(keras.layers.Dense(100, activation='rulu')) # 은닉층
+model.add(keras.layers.Dropout(0.3)) # 드롭아웃층 (은닉층 중 30%가 랜덤하게 계산되지 않게 만듦)
+model.add(keras.layers.Dense(10, activation='softmax'))
+
+model.summary() # 드롭아웃층이 summary 매소드에 추가된 것을 확인 가능 (은닉층의 크기와 동일)
+
+# 모델 저장과 복원
+model.save_weights('model-weights.h5') # 파라미터(가중치,절편)만 저장 (모델의 구조는 저장하지 않음)
+model.load_weights('model-weights.h5')
+
+model.save('model-whole.h5') # 모델 구조와 파라미터(가중치,절편)를 모두 저장
+model = keras.model.load_model('model-whole.h5')
+
+val_labels = np.argmax(model.predict(val_scaled), axis=-1) # -1로 두면 마지막 인덱스가 됨
+# 데이터가 2차원 배열이기 때문에 axis는 0또는 1이 가능하므로 -1은 1의 의미와 같음
+print(np.mean(val_labels == val_target)) # 0.87516666666666 (정확도)
+
+# 콜백
+모델을 훈련하는 도중에 지정한 작업을 수행해주는 것
+checkpoint_cb = keras.callbacks.ModelCheckpoint('best-model.h5')
+# fit 메소드를 통해서 훈련하는 도중에 검증 데이터의 가장 낮은 손실값이 되는 모델을 저장
+
+model.fit(train_scaled, train_target, epochs=20, verbose=0, validation_data=(val_scaled, val_target), callbacks=[checkpoint_cb])
+
+model = keras.models.load_model('best-model.h5')
+
+# 검증세트의 손실이 증가하는 지점부터는 굳이 훈련을 계속 진행할 필요가 없기 때문에 조기에 종료할 필요가 있다
+
+# 조기종료
+checkpoint_cb = keras.callbacks.ModelCheckpoint('best-model.h5') # 일단은 선언해줌
+early_stopping_cb = keras.callbacks.EarlyStopping(patience=2, restore_best_weights=True)
+# patience옵션은 검증 세트의 점수가 증가하다가 감소할 수도 있는데 그 증가할 때를
+# 몇 번 에포크까지 참을 것인지를 지정해주는 옵션 (따라서 2번 연속 증가까지 참는다는 뜻)
+# 근데 반드시 1번째 연속보다 2번째 연속이 더 클 필요는 없고 기존의 지점에서
+# 각각 1번째와 2번째 연속이 모두 증가했으면 증가한걸로 본다.
+# restore_best_weights=True는 가장 손실이 낮았던 가중치로 되돌리라는 뜻
+history=model.fit(train_scaled, train_target, epochs=20
+
+history = model.fit(train_scaled, train_target, epochs=20, verbose=0, validation_data=(val_scaled, val_target), callbacks=[checkpoint_cb])
+
+print(early_stopping_cb.stopped_epoch) # 11 (12번 에포크에서 멈춤) <= index 0부터 시작이기 때문
+# 따라서 patience=2로 두었기 때문에 10번째 에포크가 가장 좋다고 할 수 있다
+
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.xlabel('epoch')
+plt.ylabel('loss')
+plt.legend(['train', 'val'])
+plt.show()

@@ -1,0 +1,14 @@
+ggplot, dplyr 라이브러리 불러오기
+usedcars.csv 파일 불러오기
+1. mileage와 price의 산점도를 그려라
+2. 위에서 그린 산점도에 색상을 추가해 봐라
+3. mileage와 price에 대한 model별 산점도를 그려라 (조금 어려움)
+4. model에 대한 막대그래프를 그려라
+5. 위에서 그린 막대그래프에 색상을 추가해봐라
+6. 위에서 그린 막대그래프에 color별, transmission별 누적 막대그래프를 그려라
+7. model과 price에 대한 상자그림을 그려라
+8. 위에서 그린 model별로 분류된 상자그림에서 다시 model내에서 color로 나눠서 그려라
+9. mileage와 color에 대한 상자그림을 그려라
+10. SEL모델의 color별 평균 price의 막대그래프를 내림차순 정렬해서 그려라
+(힌트: 먼저 SEL모델의 color별 평균 price를 구해서 오름차순으로 정렬해서 객체에 저장해야 함)
+11. 위에서 그린 막대그래프를 오름차순 정렬해서 그려라
