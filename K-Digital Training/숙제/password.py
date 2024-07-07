@@ -4,7 +4,7 @@ def generator(seed_number):
     random.seed(random.random() + seed_number)
 
     # 크기가 12인 리스트 생성
-    list_data = [0] * 12
+    list_data = [0] * 15
 
 
     # 가능한 숫자 리스트
@@ -30,11 +30,11 @@ def generator(seed_number):
     # 12자리의 비밀번호 자리 중 각 자리에 뭐가 들어올지 정하기
     # 랜덤으로 뽑은 숫자가 0: 숫자, 1: 영어 소문자, 2: 영어 대문자, 3: 특수문자
     select_list = []
-    for _ in range(12):
+    for _ in range(15):
         select_list.append(random.randint(0, 3))
 
 
-    for i in range(12):
+    for i in range(15):
 
         # 만약 select_list[i]가 숫자라면
         if select_list[i] == 0:
