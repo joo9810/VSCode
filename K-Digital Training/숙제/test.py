@@ -1,3 +1,3 @@
-import password as pw
+import password
 
-pw.password_generator()
+password.password_generator()

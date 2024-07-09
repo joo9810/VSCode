@@ -153,13 +153,16 @@ def print_menu3():
 
 
 def password_generator():
+    
+    break_flag = False
 
     while True:
         # 초기화면 문구 보여주기
         print_menu1()
 
         # 비밀번호 생성기 화면에서 입력 받기
-        input_data1 = input("1 또는 2를 입력해주세요. : ")
+        input_data1 = input("\n숫자 1 또는 2를 입력해주세요. : ")
+        print()
     
         if input_data1 == '1':                                  # 1입력: 생성하기 버튼
 
@@ -169,45 +172,79 @@ def password_generator():
                 print_menu2()
 
                 # 어떠한 조합으로 생성하시겠습니까? 화면에서 입력 받기
-                input_data2 = input("1 또는 2를 입력해주세요. : ")
+                input_data2 = input("\n숫자 1 또는 2를 입력해주세요. : ")
+                print()
 
                 if input_data2 == '1':              # 1입력: 특수문자 + 영문자 + 숫자
 
+                    while True:
 
-                    # 시드 넘버 입력 문구 보여주기
-                    print_menu3()
+                        # 시드 넘버 입력 문구 보여주기
+                        print_menu3()
 
-                    # 숫자 시드 넘버를 입력해주세요. 화면에서 입력 받기
-                    input_data3 = input('숫자 시드 넘버를 입력해주세요. : ')
-                    if input_data3.isdecimal() == True: # 입력 데이터가 숫자일때
-                        seed = int(input_data3)
-                        print(f'생성된 비밀번호: {generator1(seed)}')
+                        # 숫자 시드 넘버를 입력해주세요. 화면에서 입력 받기
+                        input_data3 = input('\n0 ~ 100 사이의 정수 시드 넘버를 입력해주세요. : ')
+                        print()
+                        if input_data3.isdecimal() == True: # 입력 데이터가 숫자일때
+                            seed = int(input_data3)
+
+                            if 0 <= seed <= 100:
+                                print(f'\n생성된 비밀번호: {generator1(seed)}')
+                                print('\n비밀번호 생성을 완료하였습니다. 생성기를 종료합니다.')
+                                print()
+                                break_flag = True
+                                break
+                            else:
+                                print('\n-----*경고* 0 ~ 100 사이의 정수를 입력해주세요!!-----')
+                                print()
+                                continue
+                
+                        else:                               # 입력 데이터가 숫자가 아닐때
+                            print('\n-----*경고* 정수를 입력해주세요!!-----')
+                            print()
+                            continue
+                    if break_flag == True:
                         break
-                    else:                               # 입력 데이터가 숫자가 아닐때
-                        print('*경고* 숫자를 입력해주세요.')
-                        continue
             
                 elif input_data2 == '2':            # 2입력: 영문자 + 숫자
-                # 시드 넘버 입력 문구 보여주기
-                    print_menu3()
-                    # 숫자 시드 넘버를 입력해주세요. 화면에서 입력 받기
-                    input_data3 = input()
-                    if input_data3.isdecimal() == True:
-                        seed = int(input_data3)
-                        print(f'생성된 비밀번호: {generator2(seed)}')
+
+                    while True:
+
+                        # 시드 넘버 입력 문구 보여주기
+                        print_menu3()
+                        # 숫자 시드 넘버를 입력해주세요. 화면에서 입력 받기
+                        input_data3 = input('\n0 ~ 100 사이의 정수 시드 넘버를 입력해주세요. : ')
+                        print()
+                        if input_data3.isdecimal() == True:
+                            seed = int(input_data3)
+                            if 0 <= seed <= 100:
+                                print(f'\n생성된 비밀번호: {generator2(seed)}')
+                                print('\n비밀번호 생성을 완료하였습니다. 생성기를 종료합니다.')
+                                print()
+                                break_flag = True
+                                break
+                            else:
+                                print('\n-----*경고* 0 ~ 100 사이의 정수를 입력해주세요!!-----')
+                                print()
+                                continue
+                        else:                               # 입력 데이터가 숫자가 아닐때
+                            print('\n-----*경고* 정수를 입력해주세요!!-----')
+                            print()
+                            continue
+                    if break_flag == True:
                         break
-                    else:
-                        print('*경고* 숫자를 입력해주세요.')
-                        continue
                 else:
-                    print('*경고* 1 또는 2를 입력하세요.')
+                    print('\n-----*경고* 1 또는 2를 입력하세요!!-----')
+                    print()
+            if break_flag == True:
+                break
         elif input_data1 == '2':                                # 2입력: 종료하기 버튼
-            print('비밀번호 생성기를 종료합니다.')
+            print('\n비밀번호 생성기를 종료합니다.')
             break
         else:                                                   # 다른 글자 입력: 경고 메시지
-            print('*경고* 1 또는 2를 입력하세요.')
+            print('\n-----*경고* 1 또는 2를 입력하세요!!-----')
+            print()
             continue
-
 
 
 
