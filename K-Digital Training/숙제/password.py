@@ -151,7 +151,7 @@ def password_generator():
                             seed = int(input_data3)
 
                             if 0 <= seed <= 100:
-                                print(f'\n생성된 비밀번호: {generator1(seed)}')
+                                print(f'\n생성된 비밀번호: {generator2(seed)}')
                                 print('\n비밀번호 생성을 완료하였습니다. 생성기를 종료합니다.')
                                 print()
                                 break_flag = True
@@ -180,7 +180,7 @@ def password_generator():
                         if input_data3.isdecimal() == True:
                             seed = int(input_data3)
                             if 0 <= seed <= 100:
-                                print(f'\n생성된 비밀번호: {generator2(seed)}')
+                                print(f'\n생성된 비밀번호: {generator1(seed)}')
                                 print('\n비밀번호 생성을 완료하였습니다. 생성기를 종료합니다.')
                                 print()
                                 break_flag = True
