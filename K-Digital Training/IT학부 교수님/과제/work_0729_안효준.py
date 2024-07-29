@@ -1,7 +1,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import koreanize_matplotlib
 
-df = pd.read_csv('subwaytime.csv', encoding='utf-8-sig')
+df = pd.read_csv('C:\VSCode-1\K-Digital Training\IT학부 교수님\과제\subwaytime.csv', encoding='utf-8-sig')
 
 def find_subway_population(line):
     df_station = df[df['호선명'] == line][['호선명', '지하철역', 'Unnamed: 11', 'Unnamed: 13']]
@@ -28,7 +29,7 @@ for i in range(len(station_list)):
     print(f'출근 시간대 {station_list[i]} 최대 하차역: {name_list[i]}역, 하차인원: {value_list[i]:,}명')
 
 plt.figure(figsize = (10, 5))
-plt.rcParams['font.family'] = 'AppleGothic'
+plt.rcParams['font.family'] = 'AppleGothic' # 윈도우에선 빼주고 실행
 plt.bar(name_list, value_list)
 plt.title('출근 시간대 지하철 노선별 최대 하차 인원 및 하차역')
 plt.tight_layout()
