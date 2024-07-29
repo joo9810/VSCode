@@ -33,7 +33,7 @@ else:          # 1이면 놀부 먼저
 while True:
     current_yut = generate_yut() # 윳 생성
 
-    # current_yut = [1, 1, 1, 1] 강제로 모만 나오게 하는 상황
+    # current_yut = generate_mo() # 강제로 모만 나오게 하기
 
     if current_yut == [1, 1, 1, 1]:
         score = 5
