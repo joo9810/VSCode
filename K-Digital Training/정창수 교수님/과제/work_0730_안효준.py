@@ -42,8 +42,10 @@ def gender_population(city, gender):
 plt.rcParams['font.family'] = 'AppleGothic'
 fig, axes = plt.subplots(5, 2, figsize = (10, 10))
 
-city_list = ['대구광역시', '대구광역시 중구', '대구광역시 동구', '대구광역시 서구', '대구광역시 남구',
-             '대구광역시 북구', '대구광역시 수성구', '대구광역시 달서구', '대구광역시 달성군', '대구광역시 군위군']
+# city_list = ['대구광역시', '대구광역시 중구', '대구광역시 동구', '대구광역시 서구', '대구광역시 남구',
+#              '대구광역시 북구', '대구광역시 수성구', '대구광역시 달서구', '대구광역시 달성군', '대구광역시 군위군']
+
+city_list = list(df['행정구역'][43:53])
 
 for i in range(5):
     for j in range(2):
