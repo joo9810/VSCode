@@ -12,7 +12,7 @@ while True:
             row = 0
             col = n // 2
 
-            row, col
+            # row, col
 
             # turn1
             # magic_df.loc[row, col] = 1
