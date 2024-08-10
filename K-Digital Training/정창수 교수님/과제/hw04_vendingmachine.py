@@ -47,7 +47,7 @@ class VendingMachine:
                     if input_menu == '1' and self.inventory_check(30, 0, 0): # 블랙 커피
                         money -= 300
 
-                        self.inventory_undate(30, 0, 0) # 커피 30, 프림 0, 설탕 0
+                        self.inventory_update(30, 0, 0) # 커피 30, 프림 0, 설탕 0
 
                         print(f'블랙 커피를 선택하셨습니다. 잔액: {money}')
                         self.display_current_inventory()
@@ -56,7 +56,7 @@ class VendingMachine:
                     elif input_menu == '2' and self.inventory_check(15, 15, 0): # 프림 커피
                         money -= 300
 
-                        self.inventory_undate(15, 15, 0) # 커피 15, 프림 15, 설탕 0
+                        self.inventory_update(15, 15, 0) # 커피 15, 프림 15, 설탕 0
 
                         print(f'프림 커피를 선택하셨습니다. 잔액: {money}')
                         self.display_current_inventory()
@@ -65,7 +65,7 @@ class VendingMachine:
                     elif input_menu == '3' and self.inventory_check(10, 10, 10): # 설탕 프림 커피
                         money -= 300
 
-                        self.inventory_undate(10, 10, 10) # 커피 10, 프림 10, 설탕 10
+                        self.inventory_update(10, 10, 10) # 커피 10, 프림 10, 설탕 10
 
                         print(f'설탕 프림 커피를 선택하셨습니다. 잔액: {money}')
                         self.display_current_inventory()
@@ -102,7 +102,7 @@ class VendingMachine:
                 f"cup: {self.inventory['cup']}  change: {self.inventory['change']}")
         print('-' * 90)
 
-    def inventory_undate(self, coffee, cream, sugar): # 재고 업데이트해주는 메서드
+    def inventory_update(self, coffee, cream, sugar): # 재고 업데이트해주는 메서드
         self.inventory.update({'coffee' : self.inventory['coffee'] - coffee,
                                 'cream' : self.inventory['cream'] - cream,
                                 'sugar' : self.inventory['sugar'] - sugar,
