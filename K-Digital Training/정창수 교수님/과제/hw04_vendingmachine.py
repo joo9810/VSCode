@@ -7,24 +7,24 @@ class VendingMachine:
         money = input('동전을 투입하세요: ')
 
         if money.isdecimal() == True:
-            money = int(money)
+            self.input_money += int(money)
             count = 1 # 입력한 개수 표시
         else:
             return print('정수를 입력하세요')
 
         while True:
         
-            if count == 1 and money < 300: # 첫 투입때 300원 보다 작은 경우
-                print(f'투입된 돈 ({money}원)이 300원보다 작습니다.\n'
-                    f'{money}원을 반환합니다.\n'
+            if count == 1 and self.input_money < 300: # 첫 투입때 300원 보다 작은 경우
+                print(f'투입된 돈 ({self.input_money}원)이 300원보다 작습니다.\n'
+                    f'{self.input_money}원을 반환합니다.\n'
                     f'-------------------------------\n'
                     f'커피 자판기 동작을 종료합니다.\n'
                     f'-------------------------------')
                 break
 
-            elif count >= 2 and money < 300: # 커피를 뽑아먹고 나서 300원 보다 작은 경우
-                print(f'잔액 ({money}원)이 300원보다 작습니다.\n'
-                    f'{money}원을 반환합니다.\n'
+            elif count >= 2 and self.input_money < 300: # 커피를 뽑아먹고 나서 300원 보다 작은 경우
+                print(f'잔액 ({self.input_money}원)이 300원보다 작습니다.\n'
+                    f'{self.input_money}원을 반환합니다.\n'
                     f'-------------------------------\n'
                     f'커피 자판기 동작을 종료합니다.\n'
                     f'-------------------------------')
@@ -32,7 +32,7 @@ class VendingMachine:
 
             else:
                 print(f'----------------------------------------\n'
-                    f'  커피 자판기 (잔액:{money}원)\n'
+                    f'  커피 자판기 (잔액:{self.input_money}원)\n'
                     f'----------------------------------------\n'
                     f'1. 블랙 커피\n'
                     f'2. 프림 커피\n'
@@ -45,29 +45,29 @@ class VendingMachine:
                 if input_menu in ('1', '2', '3', '4', '5'):
 
                     if input_menu == '1' and self.inventory_check(30, 0, 0): # 블랙 커피
-                        money -= 300
+                        self.input_money -= 300
 
                         self.inventory_update(30, 0, 0) # 커피 30, 프림 0, 설탕 0
 
-                        print(f'블랙 커피를 선택하셨습니다. 잔액: {money}')
+                        print(f'블랙 커피를 선택하셨습니다. 잔액: {self.input_money}')
                         self.display_current_inventory()
                         count += 1
 
                     elif input_menu == '2' and self.inventory_check(15, 15, 0): # 프림 커피
-                        money -= 300
+                        self.input_money -= 300
 
                         self.inventory_update(15, 15, 0) # 커피 15, 프림 15, 설탕 0
 
-                        print(f'프림 커피를 선택하셨습니다. 잔액: {money}')
+                        print(f'프림 커피를 선택하셨습니다. 잔액: {self.input_money}')
                         self.display_current_inventory()
                         count += 1
 
                     elif input_menu == '3' and self.inventory_check(10, 10, 10): # 설탕 프림 커피
-                        money -= 300
+                        self.input_money -= 300
 
                         self.inventory_update(10, 10, 10) # 커피 10, 프림 10, 설탕 10
 
-                        print(f'설탕 프림 커피를 선택하셨습니다. 잔액: {money}')
+                        print(f'설탕 프림 커피를 선택하셨습니다. 잔액: {self.input_money}')
                         self.display_current_inventory()
                         count += 1
 
@@ -75,7 +75,7 @@ class VendingMachine:
                         self.display_current_inventory()
 
                     elif input_menu == '5': # 종료
-                        print(f'종료를 선택했습니다. {money}원이 반환됩니다.\n'
+                        print(f'종료를 선택했습니다. {self.input_money}원이 반환됩니다.\n'
                             f'-------------------------------\n'
                             f'커피 자판기 동작을 종료합니다.\n'
                             f'-------------------------------\n\n'
@@ -85,7 +85,7 @@ class VendingMachine:
                     else:
                         print('재료가 부족합니다.')
                         self.display_current_inventory()
-                        print(f'{money}원을 반환합니다.\n'
+                        print(f'{self.input_money}원을 반환합니다.\n'
                             f'-------------------------------\n'
                             f'커피 자판기 동작을 종료합니다.\n'
                             f'-------------------------------')
