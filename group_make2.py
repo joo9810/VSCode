@@ -19,9 +19,14 @@ def generate_group():
                 group_list.append(student.pop(idx)) # pop을 사용해서 비복원 추출
             group_dict[f'{i+1}조'] = group_list # 딕셔너리에 저장
         
-        number = random.choice(range(1, 8))
+        number = random.choice(range(1, 8)) # 1명이 남을때
 
-        group_dict[str(number) + '조'].append(student[0])           
+        group_dict[str(number) + '조'].append(student[0])
+
+        # num1, num2 = random.sample(range(1, 8), 2) # 2명이 남을때
+        # group_dict[str(num1) + '조'].append(student[0])
+        # group_dict[str(num2) + '조'].append(student[0])
+
 
         import test
         if test.ck(group_dict) == True: continue
