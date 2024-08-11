@@ -18,26 +18,26 @@ def generate_group():
                 idx = random.choice(range(29-(i*4+j))) # 학생 한 명을 뽑을때마다 리스트 길이가 1씩 줄어듦
                 group_list.append(student.pop(idx)) # pop을 사용해서 비복원 추출
             group_dict[f'{i+1}조'] = group_list # 딕셔너리에 저장
-
+        
         number = random.choice(range(1, 8))
 
-        group_dict[str(number) + '조'].append(student[0])
+        group_dict[str(number) + '조'].append(student[0])           
 
         import test
-        if test.ck(group_dict) == False: continue
+        if test.ck(group_dict) == True: continue
         else: pass
 
         # team.txt 파일로 조 정보 저장
-        # with open('current_teams.txt', 'w', encoding='utf-8') as file:
-        #     for group_number, group_member in group_dict.items():
-        #         file.write(f'{group_number}: {", ".join(group_member)}\n')
+        with open('current_teams.txt', 'w', encoding='utf-8') as file:
+            for group_number, group_member in group_dict.items():
+                file.write(f'{group_number}: {", ".join(group_member)}\n')
 
         return group_dict
 
 # 이전 프로젝트 그룹과 중복이 없는지 검사하는 함수
 def valid_check(first_group, second_group):
-    for i in range(7):
-        for j in range(7):
+    for i in range(8):
+        for j in range(8):
             # 만약 첫 번째 그룹과 두 번째 그룹의 교집합이 2이상인 곳이 존재하면 False 반환
             if len(set(list(first_group.values())[i]) & set(list(second_group.values())[j])) >= 2:
                 return False
