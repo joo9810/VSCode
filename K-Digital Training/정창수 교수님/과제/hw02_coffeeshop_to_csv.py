@@ -21,10 +21,13 @@ df = pd.DataFrame({'매장이름' : cafe_name,
                    '지역' : location,
                    '주소' : address,
                    '전화번호' : number})
-
 df.to_csv('hollys_branches.csv', index = False, encoding='utf-8-sig')
 
-
+for i in range(len(df)):
+    print(f"[{i+1:3}]: 매장이름: {df.loc[i, '매장이름']}, 지역: {df.loc[i, '지역']}, "
+          f"주소: {df.loc[i, '주소']}, 전화번호: {df.loc[i, '전화번호']}")
+print(f'전체 매장 수: {len(df)}')
+print('hollys_branches.csv 파일 저장 완료')
 
 
 
