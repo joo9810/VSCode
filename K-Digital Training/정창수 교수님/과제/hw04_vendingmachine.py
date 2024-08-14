@@ -1,5 +1,5 @@
 class VendingMachine:
-    def __init__(self, input_dict):
+    def __init__(self, input_dict): # self : 객체 자신을 구분하는 변수
         self.input_money = 0
         self.inventory = input_dict
 
