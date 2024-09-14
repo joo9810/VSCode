@@ -13,7 +13,7 @@ from torchmetrics.functional.classification import f1_score
 # ==> 가중치, 절편 업데이트 X, 최적화 미진행
 # ==> 현재 가중치와 절편값으로 테스트 진행
 # -----------------------------------------------------------------
-def testing(test_DataLoader, model, is_reg=True, is_bin=None):
+def testing(test_DataLoader, model, is_reg=True, is_bin=None, num_classes=None):
     model.eval() # 검증 모드임을 명시적으로 선언 (검증용 통계치 사용 및 드롭아웃 비활성화)
     total_loss_test = 0
     total_score_test = 0
@@ -34,7 +34,8 @@ def testing(test_DataLoader, model, is_reg=True, is_bin=None):
                 y_batch1D = y_batch.reshape(-1) # 다중 분류는 y가 반드시 1차원이어야 함.. (너무 불친절)
                 loss_test = F.cross_entropy(pred_test_y, y_batch1D.long())
                 pred_test_labels = torch.argmax(pred_test_y, dim=1)
-                score_test = f1_score(pred_test_labels, y_batch1D, task='multiclass', num_classes=3)
+                score_test = f1_score(pred_test_labels, y_batch1D,
+                                      task='multiclass', num_classes=num_classes)
                 # 다중 분류는 long타입으로 전달해야 하는듯
 
             total_loss_test += loss_test.item()
@@ -47,8 +48,8 @@ def testing(test_DataLoader, model, is_reg=True, is_bin=None):
 # -----------------------------------------------------------------
 # 모델 학습 함수
 # -----------------------------------------------------------------
-def training(train_DataLoader, test_DataLoader, model, optimizer,
-             epoch = 1000, is_reg=True, is_bin=None):
+def training(train_DataLoader, test_DataLoader, model, optimizer,epoch = 1000,
+             view_epoch=1, is_reg=True, is_bin=None, num_classes=None):
     model.train() # 학습 모드임을 명시적으로 선언 (학습용 통계치 사용)
     loss_train_history = []
     loss_test_history = []
@@ -73,7 +74,8 @@ def training(train_DataLoader, test_DataLoader, model, optimizer,
                 y_batch1D = y_batch.reshape(-1) # 다중 분류는 y가 반드시 1차원이어야 함.. (너무 불친절)
                 loss_train = F.cross_entropy(pred_train_y, y_batch1D.long())
                 pred_train_labels = torch.argmax(pred_train_y, dim=1)
-                score_train = f1_score(pred_train_labels, y_batch1D, task='multiclass', num_classes=3)
+                score_train = f1_score(pred_train_labels, y_batch1D,
+                                       task='multiclass', num_classes=num_classes)
                 # 다중 분류는 long타입으로 전달해야 하는듯
 
             # (3) 최적화
@@ -95,8 +97,10 @@ def training(train_DataLoader, test_DataLoader, model, optimizer,
             loss_test_avg = testing(test_DataLoader, model, is_reg=False, is_bin=True)[0]
             score_test_avg = testing(test_DataLoader, model, is_reg=False, is_bin=True)[1]
         elif is_reg == False and is_bin == False:
-            loss_test_avg = testing(test_DataLoader, model, is_reg=False, is_bin=False)[0]
-            score_test_avg = testing(test_DataLoader, model, is_reg=False, is_bin=False)[1]
+            loss_test_avg = testing(test_DataLoader, model,
+                                    is_reg=False, is_bin=False, num_classes=num_classes)[0]
+            score_test_avg = testing(test_DataLoader, model,
+                                     is_reg=False, is_bin=False, num_classes=num_classes)[1]
 
         loss_train_history.append(loss_train_avg)
         loss_test_history.append(loss_test_avg)
@@ -104,7 +108,7 @@ def training(train_DataLoader, test_DataLoader, model, optimizer,
         score_test_history.append(score_test_avg)
 
         # (4) 학습 결과 출력
-        if i % 10 == 0:
+        if i % view_epoch == 0:
             print(f"[Loss : {i}/{epoch}] Train : {loss_train_avg:.4f}, Test : {loss_test_avg:.4f}")
             print(f"[Score  : {i}/{epoch}] Train : {score_train_avg:.4f}, Test : {score_test_avg:.4f}")
     
