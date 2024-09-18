@@ -24,16 +24,17 @@ def testing(test_DataLoader, model, is_reg=True, is_bin=None, num_classes=None):
             pred_test_y = model(X_batch)
             # (2) 손실 함수 계산
 
-            if is_reg == True:
+            if is_reg == True: # 회귀일 때
                 loss_test = F.mse_loss(pred_test_y, y_batch)
                 score_test = r2_score(pred_test_y, y_batch)
-            elif is_reg == False and is_bin == True:
+            elif is_reg == False and is_bin == True: # 이진 분류일 때
                 loss_test = F.binary_cross_entropy(pred_test_y, y_batch)
                 score_test = f1_score(pred_test_y, y_batch)
-            elif is_reg == False and is_bin == False:
+            elif is_reg == False and is_bin == False: # 다중 분류일 때
                 y_batch1D = y_batch.reshape(-1) # 다중 분류는 y가 반드시 1차원이어야 함.. (너무 불친절)
                 loss_test = F.cross_entropy(pred_test_y, y_batch1D.long())
                 pred_test_labels = torch.argmax(pred_test_y, dim=1)
+                # dim=1을 해야 한 행 내에서 가장 큰 원소의 인덱스를 가져옴
                 score_test = f1_score(pred_test_labels, y_batch1D,
                                       task='multiclass', num_classes=num_classes)
                 # 다중 분류는 long타입으로 전달해야 하는듯
@@ -64,16 +65,17 @@ def training(train_DataLoader, test_DataLoader, model, optimizer,epoch = 1000,
             # (1) 순전파 (학습)
             pred_train_y = model(X_batch)
             # (2) 손실 함수 계산
-            if is_reg == True:
+            if is_reg == True: # 회귀일 때
                 loss_train = F.mse_loss(pred_train_y, y_batch)
                 score_train = r2_score(pred_train_y, y_batch)
-            elif is_reg == False and is_bin == True:
+            elif is_reg == False and is_bin == True: # 이진 분류일 때
                 loss_train = F.binary_cross_entropy(pred_train_y, y_batch)
                 score_train = f1_score(pred_train_y, y_batch)
-            elif is_reg == False and is_bin == False:
+            elif is_reg == False and is_bin == False: # 다중 분류일 때
                 y_batch1D = y_batch.reshape(-1) # 다중 분류는 y가 반드시 1차원이어야 함.. (너무 불친절)
                 loss_train = F.cross_entropy(pred_train_y, y_batch1D.long())
                 pred_train_labels = torch.argmax(pred_train_y, dim=1)
+                # dim=1을 해야 한 행 내에서 가장 큰 원소의 인덱스를 가져옴
                 score_train = f1_score(pred_train_labels, y_batch1D,
                                        task='multiclass', num_classes=num_classes)
                 # 다중 분류는 long타입으로 전달해야 하는듯
@@ -86,10 +88,10 @@ def training(train_DataLoader, test_DataLoader, model, optimizer,epoch = 1000,
             total_loss_train += loss_train.item()
             total_score_train += score_train.item()
 
-        # 한 에포크마다 테스트 실행
         loss_train_avg = total_loss_train / len(train_DataLoader)
         score_train_avg = total_score_train / len(train_DataLoader)
         
+        # 한 에포크마다 테스트 실행
         if is_reg == True:
             loss_test_avg = testing(test_DataLoader, model, is_reg=True)[0]
             score_test_avg = testing(test_DataLoader, model, is_reg=True)[1]
