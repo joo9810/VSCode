@@ -13,7 +13,7 @@ from torchmetrics.functional.classification import f1_score
 # ==> 가중치, 절편 업데이트 X, 최적화 미진행
 # ==> 현재 가중치와 절편값으로 테스트 진행
 # -----------------------------------------------------------------
-def testing(test_DataLoader, model, model_type, num_classes=None):
+def testing(test_DataLoader, model, is_reg=True, is_bin=None, num_classes=None):
     model.eval() # 검증 모드임을 명시적으로 선언 (검증용 통계치 사용 및 드롭아웃 비활성화)
     total_loss_test = 0
     total_score_test = 0
@@ -24,13 +24,13 @@ def testing(test_DataLoader, model, model_type, num_classes=None):
             pred_test_y = model(X_batch)
             # (2) 손실 함수 계산
 
-            if model_type == 'regression': # 회귀일 때
+            if is_reg == True: # 회귀일 때
                 loss_test = F.mse_loss(pred_test_y, y_batch)
                 score_test = r2_score(pred_test_y, y_batch)
-            elif model_type == 'binary': # 이진 분류일 때
+            elif is_reg == False and is_bin == True: # 이진 분류일 때
                 loss_test = F.binary_cross_entropy(pred_test_y, y_batch)
                 score_test = f1_score(pred_test_y, y_batch)
-            elif model_type == 'multiclass': # 다중 분류일 때
+            elif is_reg == False and is_bin == False: # 다중 분류일 때
                 y_batch1D = y_batch.reshape(-1) # 다중 분류는 y가 반드시 1차원이어야 함.. (너무 불친절)
                 loss_test = F.cross_entropy(pred_test_y, y_batch1D.long())
                 pred_test_labels = torch.argmax(pred_test_y, dim=1)
@@ -49,8 +49,8 @@ def testing(test_DataLoader, model, model_type, num_classes=None):
 # -----------------------------------------------------------------
 # 모델 학습 함수
 # -----------------------------------------------------------------
-def training(train_DataLoader, test_DataLoader, model, model_type,
-             optimizer,epoch = 1000, view_epoch=1, num_classes=None):
+def training(train_DataLoader, test_DataLoader, model, optimizer,epoch = 1000,
+             view_epoch=1, is_reg=True, is_bin=None, num_classes=None):
     model.train() # 학습 모드임을 명시적으로 선언 (학습용 통계치 사용)
     loss_train_history = []
     loss_test_history = []
@@ -65,13 +65,13 @@ def training(train_DataLoader, test_DataLoader, model, model_type,
             # (1) 순전파 (학습)
             pred_train_y = model(X_batch)
             # (2) 손실 함수 계산
-            if model_type == 'regression': # 회귀일 때
+            if is_reg == True: # 회귀일 때
                 loss_train = F.mse_loss(pred_train_y, y_batch)
                 score_train = r2_score(pred_train_y, y_batch)
-            elif model_type == 'binary': # 이진 분류일 때
+            elif is_reg == False and is_bin == True: # 이진 분류일 때
                 loss_train = F.binary_cross_entropy(pred_train_y, y_batch)
                 score_train = f1_score(pred_train_y, y_batch)
-            elif model_type == 'multiclass': # 다중 분류일 때
+            elif is_reg == False and is_bin == False: # 다중 분류일 때
                 y_batch1D = y_batch.reshape(-1) # 다중 분류는 y가 반드시 1차원이어야 함.. (너무 불친절)
                 loss_train = F.cross_entropy(pred_train_y, y_batch1D.long())
                 pred_train_labels = torch.argmax(pred_train_y, dim=1)
@@ -92,17 +92,17 @@ def training(train_DataLoader, test_DataLoader, model, model_type,
         score_train_avg = total_score_train / len(train_DataLoader)
         
         # 한 에포크마다 테스트 실행
-        if model_type == 'regression':
-            loss_test_avg = testing(test_DataLoader, model, model_type='regression')[0]
-            score_test_avg = testing(test_DataLoader, model, model_type='regression')[1]
-        elif model_type == 'binary':
-            loss_test_avg = testing(test_DataLoader, model, model_type='binary')[0]
-            score_test_avg = testing(test_DataLoader, model, model_type='binary')[1]
-        elif model_type == 'multiclass':
+        if is_reg == True:
+            loss_test_avg = testing(test_DataLoader, model, is_reg=True)[0]
+            score_test_avg = testing(test_DataLoader, model, is_reg=True)[1]
+        elif is_reg == False and is_bin == True:
+            loss_test_avg = testing(test_DataLoader, model, is_reg=False, is_bin=True)[0]
+            score_test_avg = testing(test_DataLoader, model, is_reg=False, is_bin=True)[1]
+        elif is_reg == False and is_bin == False:
             loss_test_avg = testing(test_DataLoader, model,
-                                    model_type='multiclass', num_classes=num_classes)[0]
+                                    is_reg=False, is_bin=False, num_classes=num_classes)[0]
             score_test_avg = testing(test_DataLoader, model,
-                                     model_type='multiclass', num_classes=num_classes)[1]
+                                     is_reg=False, is_bin=False, num_classes=num_classes)[1]
 
         loss_train_history.append(loss_train_avg)
         loss_test_history.append(loss_test_avg)
