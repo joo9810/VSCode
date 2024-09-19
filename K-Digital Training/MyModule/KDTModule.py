@@ -1,12 +1,94 @@
-import torch
+import torch 
 import torch.nn as nn
-import torch.nn.functional as F
+import torch.nn.functional as F 
 import torch.optim as optim
+from torch.utils.data import Dataset, DataLoader
+from torchmetrics.classification import F1Score
 from torchinfo import summary
 from torchmetrics.regression import *
 from torchmetrics.classification import *
 from torchmetrics.functional.regression import r2_score
 from torchmetrics.functional.classification import f1_score
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import LabelEncoder
+
+# ----------------------------------------------------
+# 클래스 목적 : 학습용 데이터셋 텐서화 및 전처리
+# 클래스 이름 : CustomDataSet
+# 부모 클래스 : torch.utils.data.Dataset
+# 매개   변수 : featureDF, targetDF
+# ----------------------------------------------------
+
+class CustomDataset(Dataset):
+    # 데이터 로딩 및 전처리 진행과 인스턴스 생성 메서드
+    def __init__(self, featureDF, targetDF):
+        super().__init__()
+        self.featureDF = featureDF
+        self.targetDF = targetDF
+        self.n_rows = featureDF.shape[0]
+        self.n_features = featureDF.shape[1]
+
+    # 데이터의 개수 반환 메서드
+    def __len__(self):
+        return self.n_rows
+
+    # 특정 index의 데이터와 타겟 반환 메서드 => Tensor 반환!!!
+    def __getitem__(self, idx): # 클래스 인스턴스 생성하면 자동으로 호출되는 콜백 메서드
+        featureTS = torch.FloatTensor(self.featureDF.iloc[idx].values)
+        targetTS = torch.FloatTensor(self.targetDF.iloc[idx].values)
+        return featureTS, targetTS
+
+# -----------------------------------------------------------------
+# 사용자 정의 모델 클래스
+# -----------------------------------------------------------------
+# 부모 클래스 : nn.Module
+# 필수 오버라이딩 : 
+#     => __init__()  : 모델 층 구성 (설계)
+#     => forward()   : 순방향 학습 진행 코드 구현
+# -----------------------------------------------------------------
+
+# cpu로 할지 gpu로 할지
+DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+# 입력 피쳐 수, 은닉층 퍼셉트론 수, 은닉층 개수가 모두 동적인 모델
+class DeepModel(nn.Module):
+    def __init__(self, input_in, output_out, hidden_list,
+                 act_func, model_type):
+        super().__init__() # 부모 클래스 생성
+
+        # 입력층
+        self.input_layer = nn.Linear(input_in, hidden_list[0])
+        # 은닉층
+        self.hidden_layer_list = nn.ModuleList()
+        for i in range(len(hidden_list)-1):
+            self.hidden_layer_list.append(nn.Linear(hidden_list[i], hidden_list[i+1]))
+        # 출력층
+        self.output_layer = nn.Linear(hidden_list[-1], output_out)
+
+        self.act_func = act_func
+        self.model_type = model_type
+
+    # 순방향/전방향 학습 진행 시 자동 호출되는 메서드 (콜백 함수: 시스템에서 호출되는 함수)
+    def forward(self, x):
+        # 입력층 학습
+        x = self.input_layer(x)
+        x = self.act_func(x)
+
+        # 은닉층 학습
+        for i in self.hidden_layer_list:
+            x = i(x)
+            x = self.act_func(x)
+
+        if self.model_type == 'regression': # 회귀
+            return self.output_layer(x) # 활성화 함수 안거치고 출력
+        elif self.model_type == 'binary': # 이진 분류
+            return torch.sigmoid(self.output_layer(x)) # 시그모이드
+        elif self.model_type == 'multiclass': # 다중 분류
+            return self.output_layer(x) # 소프트맥스
+            # 다중 분류의 경우 CrossEntropyLoss에서 내부적으로 log-softmax를 처리하기 때문에
+            # 모델의 마지막 출력에서 소프트맥스를 적용하지 않고 바로 전달하면 됨
 
 # -----------------------------------------------------------------
 ## 테스트/검증 함수 
@@ -131,3 +213,31 @@ def training(train_DataLoader, test_DataLoader, model, model_type, optimizer,
             print(f"[Score  : {i}/{epoch}] Train : {score_train_avg:.4f}, Test : {score_test_avg:.4f}")
     
     return loss_train_history, loss_test_history, score_train_history, score_test_history
+
+# -----------------------------------------------------------------
+# 손실값과 스코어 그려주는 함수
+# -----------------------------------------------------------------
+
+def DrawPlot(result):
+    fig, axs = plt.subplots(1, 2, figsize = (14, 5))
+
+    label_list = ['Loss', 'Score']
+
+    LENGTH = len(result[0])
+
+    for i in range(2):
+        axs[i].plot(range(1, LENGTH+1), result[2*i], label = f'Train {label_list[i]}')
+        axs[i].plot(range(1, LENGTH+1), result[2*i+1], label = f'Valid {label_list[i]}')
+        axs[i].set_title(label_list[i])
+        axs[i].set_xlabel('EPOCH')
+        axs[i].set_ylabel('Loss')
+        axs[i].legend()
+    plt.show()
+
+# -----------------------------------------------------------------
+# 예측값 출력하는 함수
+# -----------------------------------------------------------------
+
+def predict_value(test_inputDF, model):
+    test_inputTS = torch.FloatTensor(test_inputDF.values)
+    return torch.argmax(model(test_inputTS), dim=1)

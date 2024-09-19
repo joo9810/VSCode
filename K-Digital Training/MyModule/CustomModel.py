@@ -21,7 +21,7 @@ DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 # 입력 피쳐 수, 은닉층 퍼셉트론 수, 은닉층 개수가 모두 동적인 모델
 class DeepModel(nn.Module):
     def __init__(self, input_in, output_out, hidden_list,
-                 act_func, is_reg = True, is_bin = None):
+                 act_func, model_type):
         super().__init__() # 부모 클래스 생성
 
         # 입력층
@@ -34,8 +34,7 @@ class DeepModel(nn.Module):
         self.output_layer = nn.Linear(hidden_list[-1], output_out)
 
         self.act_func = act_func
-        self.is_reg = is_reg
-        self.is_bin = is_bin
+        self.model_type = model_type
 
     # 순방향/전방향 학습 진행 시 자동 호출되는 메서드 (콜백 함수: 시스템에서 호출되는 함수)
     def forward(self, x):
@@ -48,12 +47,11 @@ class DeepModel(nn.Module):
             x = i(x)
             x = self.act_func(x)
 
-        if self.is_reg == True: # 회귀 문제라면
+        if self.model_type == 'regression': # 회귀
             return self.output_layer(x) # 활성화 함수 안거치고 출력
-        elif self.is_reg == False: # 분류 문제라면
-            if self.is_bin == True: # 이진 분류
-                return torch.sigmoid(self.output_layer(x)) # 시그모이드
-            elif self.is_bin == False: # 다중 분류
-                return self.output_layer(x) # 소프트맥스
-                # 다중 분류의 경우 CrossEntropyLoss에서 내부적으로 log-softmax를 처리하기 때문에
-                # 모델의 마지막 출력에서 소프트맥스를 적용하지 않고 바로 전달하면 됨
+        elif self.model_type == 'binary': # 이진 분류
+            return torch.sigmoid(self.output_layer(x)) # 시그모이드
+        elif self.model_type == 'multiclass': # 다중 분류
+            return self.output_layer(x) # 소프트맥스
+            # 다중 분류의 경우 CrossEntropyLoss에서 내부적으로 log-softmax를 처리하기 때문에
+            # 모델의 마지막 출력에서 소프트맥스를 적용하지 않고 바로 전달하면 됨
