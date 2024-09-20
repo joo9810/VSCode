@@ -53,7 +53,7 @@ class CustomDataset(Dataset):
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 # 입력 피쳐 수, 은닉층 퍼셉트론 수, 은닉층 개수가 모두 동적인 모델
-class DeepModel(nn.Module):
+class LinearModel(nn.Module):
     def __init__(self, input_in, output_out, hidden_list,
                  act_func, model_type):
         super().__init__() # 부모 클래스 생성
@@ -89,6 +89,46 @@ class DeepModel(nn.Module):
             return self.output_layer(x) # 소프트맥스
             # 다중 분류의 경우 CrossEntropyLoss에서 내부적으로 log-softmax를 처리하기 때문에
             # 모델의 마지막 출력에서 소프트맥스를 적용하지 않고 바로 전달하면 됨
+
+
+class LSTMModel(nn.Module):
+    def __init__(self, input_size, output_size, hidden_list, act_func, model_type, num_layers=1):
+        super().__init__()
+        
+        # LSTM 레이어 (입력 크기, 은닉 크기, 레이어 수, batch_first를 True로 설정하여 배치가 첫 번째 차원이 되게 함)
+        self.lstm = nn.LSTM(input_size, hidden_list[0], num_layers=num_layers, batch_first=True)
+        
+        # 은닉층
+        self.hidden_layer_list = nn.ModuleList()
+        for i in range(len(hidden_list)-1):
+            self.hidden_layer_list.append(nn.Linear(hidden_list[i], hidden_list[i+1]))
+
+        # 출력층
+        self.output_layer = nn.Linear(hidden_list[-1], output_size)
+
+        self.act_func = act_func
+        self.model_type = model_type
+
+    def forward(self, x):
+        # LSTM 레이어를 통과 (x: 배치 크기, 시퀀스 길이, 입력 크기)
+        lstm_out, (hn, cn) = self.lstm(x)  # lstm_out은 모든 타임스텝의 출력을 포함, hn은 마지막 타임스텝의 출력
+        
+        # LSTM의 마지막 타임스텝 출력만 사용
+        x = lstm_out[:, -1, :]  # 마지막 타임스텝의 출력을 사용
+        
+        # 은닉층
+        for layer in self.hidden_layer_list:
+            x = layer(x)
+            x = self.act_func(x)
+
+        # 출력층
+        if self.model_type == 'regression':  # 회귀
+            return self.output_layer(x)
+        elif self.model_type == 'binary':  # 이진 분류
+            return torch.sigmoid(self.output_layer(x))
+        elif self.model_type == 'multiclass':  # 다중 분류
+            return self.output_layer(x)  # CrossEntropyLoss에서 log-softmax 처리
+
 
 # -----------------------------------------------------------------
 ## 테스트/검증 함수 
