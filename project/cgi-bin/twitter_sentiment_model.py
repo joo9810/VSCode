@@ -5,11 +5,14 @@ import cgitb
 import pandas as pd
 import torch
 import torch.nn.functional as F
-from nltk.corpus import stopwords
 import joblib
 import sys
-import os
-MODULE_PATH = '/Users/anhyojun/VSCode/K-Digital Training/MyModule'
+import platform
+
+if platform.system() == 'Windows':
+    MODULE_PATH = r'C:\VSCode\K-Digital Training\MyModule'
+else:
+    MODULE_PATH = '/Users/anhyojun/VSCode/K-Digital Training/MyModule'
 sys.path.append(MODULE_PATH)
 from KDTModule import *
 
@@ -29,12 +32,18 @@ sentence = form.getfirst("string", "")
 try:
     # LSTM 모델 작동
     sentenceDF = pd.DataFrame([sentence], columns=['clean_text'])
-    loaded_vectorizer = joblib.load('/Users/anhyojun/VSCode/project/cgi-bin/tfid_vectorizer.pkl')
+    if platform.system() == 'Windows':
+        loaded_vectorizer = joblib.load(r'C:\VSCode\project\cgi-bin\tfid_vectorizer.pkl')
+    else:
+        loaded_vectorizer = joblib.load('/Users/anhyojun/VSCode/project/cgi-bin/tfid_vectorizer.pkl')
     input_vector = loaded_vectorizer.transform(sentenceDF['clean_text']).toarray()
     input_vectorDF = pd.DataFrame(input_vector)
     best_model = LSTMModel(input_size = 8000, output_size = 3, hidden_list = [100, 80, 60, 40, 20],
                     act_func=F.relu, model_type='multiclass', num_layers=1)
-    best_model.load_state_dict(torch.load('/Users/anhyojun/VSCode/project/cgi-bin/Best_LSTM_Model.pth', weights_only=True))
+    if platform.system() == 'Windows':
+        best_model.load_state_dict(torch.load('C:\VSCode\project\cgi-bin\Best_LSTM_Model.pth', weights_only=True))
+    else:
+        best_model.load_state_dict(torch.load('/Users/anhyojun/VSCode/project/cgi-bin/Best_LSTM_Model.pth', weights_only=True))
     result = predict_value(input_vectorDF, best_model, dim=3)
 
     if result.item() == 0:

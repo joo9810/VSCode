@@ -6,10 +6,12 @@
     <title>트위터 감정 분석 모델</title>
     <style>
         /* 입력 칸의 너비 조정 */
-        input[type="text"] {
+        textarea {
             width: 400px;
             height: 200px;
             font-size: 16px;
+            resize: none;
+            overflow-wrap: break-word; /* 텍스트가 박스를 벗어나지 않게 줄바꿈 */
         }
 
         h1 {
@@ -25,7 +27,7 @@
 <body>
     <h1>분석 할 영어 문장을 입력하세요</h1>
     <form action="/cgi-bin/twitter_sentiment_model.py" method="post">
-        <label><input type="text" name="string" required></label><br><br>
+        <label><textarea name="string" required></textarea></label><br><br>
         <button type="submit">분석</button>
     </form>
 </body>

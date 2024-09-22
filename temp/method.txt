@@ -1,2 +1,7 @@
 1. 터미널에 cd project 입력
 2. python -m http.server --cgi 8080 입력
+3. http://localhost:8080/ 접속
+4. 권한이 없으면 chmod +x cgi-bin/twitter_sentiment_model.py로 권한 부여
+5. 파일 권한이 없으면 아래 방법으로 권한 부여
+chmod 644 /Users/anhyojun/VSCode/project/cgi-bin/tfid_vectorizer.pkl
+chmod 644 /Users/anhyojun/VSCode/project/cgi-bin/Best_LSTM_Model.pth
