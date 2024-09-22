@@ -1,0 +1,2 @@
+1. 터미널에 cd project 입력
+2. python -m http.server --cgi 8080 입력

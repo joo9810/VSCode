@@ -23,12 +23,13 @@ from sklearn.preprocessing import LabelEncoder
 
 class CustomDataset(Dataset):
     # 데이터 로딩 및 전처리 진행과 인스턴스 생성 메서드
-    def __init__(self, featureDF, targetDF):
+    def __init__(self, featureDF, targetDF, feature_dim):
         super().__init__()
         self.featureDF = featureDF
         self.targetDF = targetDF
         self.n_rows = featureDF.shape[0]
         self.n_features = featureDF.shape[1]
+        self.feature_dim = feature_dim
 
     # 데이터의 개수 반환 메서드
     def __len__(self):
@@ -36,7 +37,10 @@ class CustomDataset(Dataset):
 
     # 특정 index의 데이터와 타겟 반환 메서드 => Tensor 반환!!!
     def __getitem__(self, idx): # 클래스 인스턴스 생성하면 자동으로 호출되는 콜백 메서드
-        featureTS = torch.FloatTensor(self.featureDF.iloc[idx].values)
+        if self.feature_dim == 1:
+            featureTS = torch.FloatTensor(self.featureDF.iloc[idx].values)
+        elif self.feature_dim == 2:
+            featureTS = torch.FloatTensor(self.featureDF.iloc[idx].values).unsqueeze(0)
         targetTS = torch.FloatTensor(self.targetDF.iloc[idx].values)
         return featureTS, targetTS
 
@@ -272,12 +276,16 @@ def DrawPlot(result):
         axs[i].set_xlabel('EPOCH')
         axs[i].set_ylabel('Loss')
         axs[i].legend()
-    plt.show()
+    return fig, axs
 
 # -----------------------------------------------------------------
 # 예측값 출력하는 함수
 # -----------------------------------------------------------------
 
-def predict_value(test_inputDF, model):
-    test_inputTS = torch.FloatTensor(test_inputDF.values)
-    return torch.argmax(model(test_inputTS), dim=1)
+def predict_value(test_inputDF, model, dim):
+    if dim == 2:
+        test_inputTS = torch.FloatTensor(test_inputDF.values)
+        return torch.argmax(model(test_inputTS), dim=1)
+    elif dim == 3:
+        test_inputTS = torch.FloatTensor(test_inputDF.values).reshape(1,1,-1)
+        return torch.argmax(model(test_inputTS), dim=1)

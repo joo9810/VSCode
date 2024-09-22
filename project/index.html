@@ -3,22 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>사칙연산 계산기</title>
+    <title>트위터 감정 분석 모델</title>
+    <style>
+        /* 입력 칸의 너비 조정 */
+        input[type="text"] {
+            width: 400px;
+            height: 200px;
+            font-size: 16px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        /* 폼 내부 요소들을 정렬 */
+        form {
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-    <h1>사칙연산 계산기</h1>
-    <form action="/cgi-bin/calculate.py" method="post">
-        <label>첫 번째 숫자: <input type="number" name="num1" required></label><br><br>
-        <label>두 번째 숫자: <input type="number" name="num2" required></label><br><br>
-        <label>연산: 
-            <select name="operation">
-                <option value="add">덧셈</option>
-                <option value="subtract">뺄셈</option>
-                <option value="multiply">곱셈</option>
-                <option value="divide">나눗셈</option>
-            </select>
-        </label><br><br>
-        <button type="submit">계산</button>
+    <h1>분석 할 영어 문장을 입력하세요</h1>
+    <form action="/cgi-bin/twitter_sentiment_model.py" method="post">
+        <label><input type="text" name="string" required></label><br><br>
+        <button type="submit">분석</button>
     </form>
 </body>
 </html>
