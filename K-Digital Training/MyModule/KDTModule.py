@@ -106,7 +106,7 @@ class LSTMModel(nn.Module):
         self.hidden_layer_list = nn.ModuleList()
         for i in range(len(hidden_list)-1):
             self.hidden_layer_list.append(nn.Linear(hidden_list[i], hidden_list[i+1]))
-
+        
         # 출력층
         self.output_layer = nn.Linear(hidden_list[-1], output_size)
 
